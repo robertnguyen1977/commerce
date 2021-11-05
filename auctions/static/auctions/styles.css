@@ -1,0 +1,54 @@
+body {
+    padding: 10px;
+}
+
+div {
+    border: black;
+}
+
+div > a {
+    text-decoration: none;
+    color: black;
+}
+
+button, input[type="submit"] {
+    border: rgb(56, 173, 250);
+    border-radius: 5px;
+    background-color: rgb(57, 129, 245);
+    color: white;
+    padding: 8px;
+    outline: none;
+}
+input[type="submit"] {
+    text-align: center;
+    margin-top: 6px;
+}
+.listing, .user, .logout {
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: cadetblue;
+}
+
+button:hover, input[type="submit"]:hover {
+    border: rgb(108, 192, 248);
+    border-radius: 5px;
+    background-color: rgb(78, 142, 245);
+    color: white;
+    padding: 8px;
+    outline: none;
+}
+.nav {
+    margin-top: -10px;
+}
+
+.user {
+    position: absolute;
+    top: 20px;
+    right: 100px;
+}
+.logout {
+    position: absolute;
+    top: 20px;
+    right: 30px; 
+}

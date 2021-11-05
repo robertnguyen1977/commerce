@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+    <br><hr>
+    {% for listing in listings %}
+    <div class="listing">
+        <h4>{{listing.title}}</h4>
+        <img src="{{listing.image_url}}" width="50%" alt="No Image">
+        <br>
+        <span>Current bid is <b>{{listing.current_bid}}$</b></span>
+        <br>
+        {% if user.is_authenticated and  listing not in Watchlist %}
+        <form action="{% url 'watchlist' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" value="{{listing.title}}" name="watchlist">
+            <input type="submit" value="Watchlist">
+        </form>
+        {% else %}
+        <a href="{% url 'watchlist' %}"><button>Watchlist</button></a>
+        {% endif %}
+    </div>
+    <br><br>
+    {% empty %}
+    <ul>
+        <li>No active listing</li>
+    </ul>
+    {% endfor %}
+{% endblock %}

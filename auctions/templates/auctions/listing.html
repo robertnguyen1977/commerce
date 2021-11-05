@@ -1,0 +1,35 @@
+{% extends 'auctions/layout.html' %}
+{% block body %}
+<h1>{{listing.title}}</h1>
+<img src="{{listing.image_url}}" width="80%">
+<h3>Description:</h3>
+<p>{{listing.description}}</p>
+<h3>Bids:</h3>
+Current bid: {{listing.current_bid}}$
+<br>
+<form action="{% url 'listing' listing.id %}" method="POST">
+<input type="number" placeholder="Bid" min="{{listing.current_bid}}" name="bid">
+{% if message %} {{message}} {% endif %}
+<br>
+{% csrf_token %}
+<input type="submit" value="Place bid">
+</form>
+<br>
+<h3>Details:</h3>
+<ul>
+<li>Listed by {{listing.user}}</li>
+<li>Listed on {{listing.time}}</li>
+<li>Category: <a href="{% url 'category' listing.category %}">{{listing.category}}</a></li>
+</ul>
+<h3>Comments:</h3>
+<ul>
+{% for comment in comments %}
+<li>{{comment.user}}: {{comment.comment}}</li>
+{% endfor %}
+</ul>
+<form action="{% url 'listing' listing.id %}" method="POST">
+{% csrf_token %}
+<textarea name="comment" placeholder="Comment something!" title="Tips: Press Windows + . to use emoji"></textarea>
+<input type="submit" value="Submit">
+</form>
+{% endblock %}
