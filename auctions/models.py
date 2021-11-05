@@ -35,12 +35,14 @@ class Listing(models.Model):
 class Watchlist(models.Model):
     title = models.CharField(max_length=90, default="listing")
     user = models.CharField(max_length=20, default="admin")
-    listing_id = models.IntegerField(default=1)
+    listing_id = models.IntegerField(default=1, unique=True)
     listing_image = models.CharField(max_length=1000, default="Type something!")
     def __str__(self):
-        return f"{self.title} : {self.user}"
+        return f"{self.title}"
 
 class Comment(models.Model):
     user = models.CharField(max_length=64, default="admin")
     listing_id = models.IntegerField()
     comment = models.CharField(max_length=1000, default="Type something!")
+    def __str__(self):
+        return f"{self.user} : {self.comment}"

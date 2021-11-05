@@ -8,7 +8,7 @@
 Current bid: {{listing.current_bid}}$
 <br>
 <form action="{% url 'listing' listing.id %}" method="POST">
-<input type="number" placeholder="Bid" min="{{listing.current_bid}}" name="bid">
+{{bid_form}}
 {% if message %} {{message}} {% endif %}
 <br>
 {% csrf_token %}
@@ -25,11 +25,13 @@ Current bid: {{listing.current_bid}}$
 <ul>
 {% for comment in comments %}
 <li>{{comment.user}}: {{comment.comment}}</li>
+{% empty %}
+<li>No comment, be the first one!</li>
 {% endfor %}
 </ul>
 <form action="{% url 'listing' listing.id %}" method="POST">
 {% csrf_token %}
-<textarea name="comment" placeholder="Comment something!" title="Tips: Press Windows + . to use emoji"></textarea>
+{{comment_form}}
 <input type="submit" value="Submit">
 </form>
 {% endblock %}

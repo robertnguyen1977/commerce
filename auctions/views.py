@@ -17,12 +17,16 @@ class NewListingForm(forms.Form):
     image_url = forms.CharField(required=False)
     category = forms.ChoiceField(choices=categories)
 
+class CommentForm(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea(attrs={"name":"comment", "placeholder":"Comment something!","rows":"3"}), label="")
+
+class BidForm(forms.Form):
+    Bid = forms.IntegerField(label="", widget=forms.NumberInput(attrs={"placeholder":"Bid", "name":"bid"}))
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all(),
         "Watchlist": Watchlist.objects.filter(user=request.user.username)
     })
-
 
 def login_view(request):
     if request.method == "POST":
@@ -78,15 +82,21 @@ def listing(request, listing_id):
     bid = str(request.POST.get('bid'))
     listing = Listing.objects.get(pk=listing_id)
     if request.method == "POST":
-        if len(bid) > 0:
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.cleaned_data['comment']
+            Comment.objects.create(comment=comment, user=request.user.username, listing_id=listing_id)
+    if request.method == "POST" and len(bid) > 0:
+        form = BidForm(request.POST)
+        if form.is_valid():
+            bid = form.cleaned_data['Bid']
             Bids.objects.get(listing_id=listing_id).bid = bid
-        else:
-            return render(request,"auctions/listing.html", {
-                "listing": listing
-            })
+        
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "comments": Comment.objects.filter(listing_id=listing_id)
+        "comments": Comment.objects.filter(listing_id=listing_id),
+        "bid_form": BidForm(),
+        "comment_form": CommentForm()
     })
 
 def new(request):
@@ -119,10 +129,13 @@ def category(request, category):
     })
 
 def watchlist(request):
-    if request.method == "POST":
-        title = request.POST.get('watchlist')
-        listing = Listing.objects.get(title=title)
-        Watchlist.objects.create(title=listing.title, user=request.user.username, listing_id=listing.id, listing_image=listing.image_url)
-    return render(request, "auctions/watchlist.html", {
-        "listings": Watchlist.objects.filter(user=request.user.username),
-    })
+    try:
+        if request.method == "POST":
+            title = request.POST.get('watchlist')
+            listing = Listing.objects.get(title=title)
+            Watchlist.objects.create(title=listing.title, user=request.user.username, listing_id=listing.id, listing_image=listing.image_url)
+        return render(request, "auctions/watchlist.html", {
+            "listings": Watchlist.objects.filter(user=request.user.username),
+        })
+    except IntegrityError:
+        return HttpResponseRedirect(reverse('watchlist'))

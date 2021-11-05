@@ -10,7 +10,7 @@
         <br>
         <span>Current bid is <b>{{listing.current_bid}}$</b></span>
         <br>
-        {% if user.is_authenticated and  listing not in Watchlist %}
+        {% if user.is_authenticated and  listing.title not in Watchlist %}
         <form action="{% url 'watchlist' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" value="{{listing.title}}" name="watchlist">

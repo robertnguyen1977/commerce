@@ -4,6 +4,11 @@
 <div>
     <img src="{{listing.listing_image}}" width="30%">
     <a href="{% url 'listing' listing.listing_id %}">{{listing.title}}</a>
+    <form action="{% url 'watchlist' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" value="{{listing.title}}" name="delete">
+        <input type="submit" class="delete" value="delete">
+    </form>
 </div>
 {% empty %}
 <li>No listing</li>
