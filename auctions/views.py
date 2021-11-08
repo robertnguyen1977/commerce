@@ -8,7 +8,11 @@ from django.urls import reverse
 from django.forms import Form
 from .models import Bids, Comment, User, Listing, Watchlist
 from datetime import datetime
+class CommentForm(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea(attrs={"name":"comment", "placeholder":"Comment something!","rows":"3"}), label="")
 
+class BidForm(forms.Form):
+    Bid = forms.IntegerField(label="", widget=forms.NumberInput(attrs={"placeholder":"Bid", "name":"bid"}))
 class NewListingForm(forms.Form):
     categories = Listing.categories
     title = forms.CharField(max_length=64)
@@ -17,16 +21,12 @@ class NewListingForm(forms.Form):
     image_url = forms.CharField(required=False)
     category = forms.ChoiceField(choices=categories)
 
-class CommentForm(forms.Form):
-    comment = forms.CharField(widget=forms.Textarea(attrs={"name":"comment", "placeholder":"Comment something!","rows":"3"}), label="")
-
-class BidForm(forms.Form):
-    Bid = forms.IntegerField(label="", widget=forms.NumberInput(attrs={"placeholder":"Bid", "name":"bid"}))
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all(),
         "Watchlist": Watchlist.objects.filter(user=request.user.username)
     })
+
 
 def login_view(request):
     if request.method == "POST":
@@ -132,13 +132,17 @@ def category(request, category):
     })
 
 def watchlist(request):
+    user = request.user.username
     try:
-        if request.method == "POST":
-            title = request.POST.get('watchlist')
+        delete_listing = request.POST.get('delete')
+        title = request.POST.get('watchlist')
+        if request.method == "POST" and title != None:
             listing = Listing.objects.get(title=title)
-            Watchlist.objects.create(title=listing.title, user=request.user.username, listing_id=listing.id, listing_image=listing.image_url)
+            Watchlist.objects.create(title=listing.title, user=user, listing_id=listing.id, listing_image=listing.image_url)
+        if request.method == "POST" and delete_listing != None:
+            Watchlist.objects.get(title=delete_listing, user=user).delete()
         return render(request, "auctions/watchlist.html", {
-            "listings": Watchlist.objects.filter(user=request.user.username),
+            "listings": Watchlist.objects.filter(user=user),
         })
     except IntegrityError:
         return HttpResponseRedirect(reverse('watchlist'))
