@@ -30,6 +30,7 @@ class Listing(models.Model):
     category = models.CharField(choices=categories, max_length=1000, default="movies")
     user = models.CharField(max_length=20)  
     time = models.CharField(max_length=64)
+    active = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.id}: {self.title}"
 class Watchlist(models.Model):

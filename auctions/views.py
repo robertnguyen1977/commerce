@@ -23,7 +23,7 @@ class NewListingForm(forms.Form):
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all(),
+        "listings": Listing.objects.filter(active=True),
         "Watchlist": Watchlist.objects.filter(user=request.user.username)
     })
 
@@ -79,14 +79,14 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 def listing(request, listing_id):
-    bid = str(request.POST.get('bid'))
+    bid = str(request.POST.get('Bid'))
     listing = Listing.objects.get(pk=listing_id)
-    if request.method == "POST":
+    if request.method == "POST" and bid == "None":
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.cleaned_data['comment']
             Comment.objects.create(comment=comment, user=request.user.username, listing_id=listing_id)
-    if request.method == "POST" and len(bid) > 0:
+    if request.method == "POST" and bid != "None":
         form = BidForm(request.POST)
         if form.is_valid():
             bid = form.cleaned_data['Bid']
@@ -94,7 +94,6 @@ def listing(request, listing_id):
             current_bid.bid = bid
             current_bid.username = request.user.username
             current_bid.save()
-
         
     return render(request, "auctions/listing.html", {
         "listing": listing,
@@ -118,7 +117,7 @@ def new(request):
             listing_id = Listing.objects.last().id + 1
             Bids.objects.create(listing_id=int(listing_id), bid=starting_bid)
             bid = Bids.objects.last()
-            listing = Listing(title=title, description=description, current_bid=bid, image_url=image_url, category=category, time=current_time)
+            listing = Listing(title=title, description=description, current_bid=bid, image_url=image_url, category=category, time=current_time, user=request.user.username)
             listing.save()
             return HttpResponseRedirect(reverse("listing", args=str(Listing.objects.last().id)))
     return render(request, "auctions/new.html", {
