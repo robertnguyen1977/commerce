@@ -90,7 +90,11 @@ def listing(request, listing_id):
         form = BidForm(request.POST)
         if form.is_valid():
             bid = form.cleaned_data['Bid']
-            Bids.objects.get(listing_id=listing_id).bid = bid
+            current_bid = Bids.objects.get(listing_id=listing_id)
+            current_bid.bid = bid
+            current_bid.username = request.user.username
+            current_bid.save()
+
         
     return render(request, "auctions/listing.html", {
         "listing": listing,
