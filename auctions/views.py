@@ -80,8 +80,9 @@ def register(request):
         return render(request, "auctions/register.html")
 def listing(request, listing_id):
     bid = str(request.POST.get('Bid'))
+    close_listing = request.POST.get('close')
     listing = Listing.objects.get(pk=listing_id)
-    if request.method == "POST" and bid == "None":
+    if request.method == "POST" and bid == "None" and close_listing == None:
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.cleaned_data['comment']
@@ -94,18 +95,22 @@ def listing(request, listing_id):
             current_bid.bid = bid
             current_bid.username = request.user.username
             current_bid.save()
+    if request.method == "POST" and close_listing != None:
+        listing.active = False
+        listing.save()
         
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "comments": Comment.objects.filter(listing_id=listing_id),
         "bid_form": BidForm(),
-        "comment_form": CommentForm()
+        "comment_form": CommentForm(),
+        "bid": Bids.objects.get(listing_id=listing_id)
     })
 
 def new(request):
     now = datetime.now()
     today = datetime.today()
-    current_time = today.strftime("%d %m, %Y") + now.strftime(" %S:%M:%H")
+    current_time = today.strftime("%d %m, %Y") + now.strftime(" %H : %M : %S")
     if request.method == "POST":
         form = NewListingForm(request.POST)
         if form.is_valid():
@@ -114,7 +119,10 @@ def new(request):
             starting_bid = form.cleaned_data["starting_bid"]
             image_url = form.cleaned_data["image_url"]
             category = form.cleaned_data["category"]
-            listing_id = Listing.objects.last().id + 1
+            try:
+                listing_id = Listing.objects.last().id + 1
+            except AttributeError:
+                listing_id = 1
             Bids.objects.create(listing_id=int(listing_id), bid=starting_bid)
             bid = Bids.objects.last()
             listing = Listing(title=title, description=description, current_bid=bid, image_url=image_url, category=category, time=current_time, user=request.user.username)

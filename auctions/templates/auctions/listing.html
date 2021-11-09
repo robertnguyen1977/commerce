@@ -1,11 +1,23 @@
 {% extends 'auctions/layout.html' %}
 {% block body %}
-{% if user.username == listing.user %}
+{% if user.username == listing.user and listing.active %}
 <form action="{% url 'listing' listing.id %}" method="POST">
 {% csrf_token %}
-<input type="hidden" value="{{listing.title}}" name="Close">
+<input type="hidden" value="{{listing.title}}" name="close">
 <input type="submit" value="Close">
 </form>
+{% elif bid.username == user.username and listing.active == False%}
+<div class="alert alert-success" role="alert">
+  Congratulations! You won the {{listing.title}} with {{bid.bid}}$
+</div>
+{% elif listing.user == user.username and listing.active == False %}
+<div class="alert alert-info" role="alert">
+  You closed the listing. Winner is {{bid.username}}
+</div>
+{% elif listing.active == False and user.username != bid.username %}
+<div class="alert alert-danger" role="alert">
+  Sorry, you lose. The winner is {{bid.username}}
+</div>
 {% endif %}
 <h1>{{listing.title}}</h1>
 <img src="{{listing.image_url}}" width="80%">
@@ -14,6 +26,7 @@
 <h3>Bids:</h3>
 Current bid: {{listing.current_bid}}$
 <br>
+{% if user.username != listing.user and listing.active %}
 <form action="{% url 'listing' listing.id %}" method="POST">
 {{bid_form}}
 {% if message %} {{message}} {% endif %}
@@ -21,6 +34,7 @@ Current bid: {{listing.current_bid}}$
 {% csrf_token %}
 <input type="submit" value="Place bid">
 </form>
+{% endif %}
 <br>
 <h3>Details:</h3>
 <ul>
