@@ -29,11 +29,15 @@ Current bid: {{listing.current_bid}}$
 {% if user.username != listing.user and listing.active %}
 <form action="{% url 'listing' listing.id %}" method="POST">
 {{bid_form}}
-{% if message %} {{message}} {% endif %}
 <br>
 {% csrf_token %}
 <input type="submit" value="Place bid">
-</form>
+</form><br>
+{% if message %}
+<div class="alert alert-warning" role="alert">
+  {{message}}
+</div> 
+{% endif %}
 {% endif %}
 <br>
 <h3>Details:</h3>

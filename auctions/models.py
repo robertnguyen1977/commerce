@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from datetime import datetime
 
-from django.db.models.deletion import CASCADE
-
 
 class User(AbstractUser):
     pass
@@ -20,12 +18,15 @@ class Listing(models.Model):
         ("movies", "movies"),
         ("antique", "antique"),
         ("magical", "magical"),
-        ("rare item", "rare item")
+        ("rare item", "rare item"),
+        ("toys","toys"),
+        ("electricals", "electricals"),
+        ("fashion", "fashion")
     ]
 
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=200)
-    current_bid = models.ForeignKey(Bids, on_delete=CASCADE, related_name="bids", default=10000)
+    current_bid = models.ForeignKey(Bids, on_delete=models.CASCADE, related_name="bids", default=10000)
     image_url = models.CharField(max_length=400, blank=True)
     category = models.CharField(choices=categories, max_length=1000, default="movies")
     user = models.CharField(max_length=20)  

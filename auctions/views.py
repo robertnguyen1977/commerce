@@ -92,9 +92,19 @@ def listing(request, listing_id):
         if form.is_valid():
             bid = form.cleaned_data['Bid']
             current_bid = Bids.objects.get(listing_id=listing_id)
-            current_bid.bid = bid
-            current_bid.username = request.user.username
-            current_bid.save()
+            if int(bid) > int(str(current_bid)):
+                current_bid.bid = bid
+                current_bid.username = request.user.username
+                current_bid.save()
+            else:
+                return render(request, "auctions/listing.html", {
+                     "listing": listing,
+                    "comments": Comment.objects.filter(listing_id=listing_id),
+                    "bid_form": BidForm(),
+                    "comment_form": CommentForm(),
+                    "bid": Bids.objects.get(listing_id=listing_id),
+                    "message": "You need to bid larger than the current bid"
+                })
     if request.method == "POST" and close_listing != None:
         listing.active = False
         listing.save()
@@ -148,8 +158,11 @@ def watchlist(request):
         delete_listing = request.POST.get('delete')
         title = request.POST.get('watchlist')
         if request.method == "POST" and title != None:
-            listing = Listing.objects.get(title=title)
-            Watchlist.objects.create(title=listing.title, user=user, listing_id=listing.id, listing_image=listing.image_url)
+            try:
+                Watchlist.objects.get(title=title, user=user)
+            except:
+                listing = Listing.objects.get(title=title)
+                Watchlist.objects.create(title=listing.title, user=user, listing_id=listing.id, listing_image=listing.image_url)
         if request.method == "POST" and delete_listing != None:
             Watchlist.objects.get(title=delete_listing, user=user).delete()
         return render(request, "auctions/watchlist.html", {
